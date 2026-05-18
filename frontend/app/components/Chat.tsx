@@ -24,6 +24,30 @@ export function Chat() {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    const handleSampleQuestion = (e: CustomEvent) => {
+      const question = e.detail;
+      if (question && typeof question === 'string') {
+        setInput(question);
+      }
+    };
+
+    // Listen for checkInputEmpty event from FileDrop
+    const handleCheckInputEmpty = (e: CustomEvent) => {
+      const { callback } = e.detail;
+      if (callback) {
+        callback(input.trim() === '');
+      }
+    };
+
+    window.addEventListener('loadSampleQuestion', handleSampleQuestion as EventListener);
+    window.addEventListener('checkInputEmpty', handleCheckInputEmpty as EventListener);
+    return () => {
+      window.removeEventListener('loadSampleQuestion', handleSampleQuestion as EventListener);
+      window.removeEventListener('checkInputEmpty', handleCheckInputEmpty as EventListener);
+    };
+  }, [input]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;

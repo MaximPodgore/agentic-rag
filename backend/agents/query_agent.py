@@ -22,7 +22,7 @@ class QueryResult(BaseModel):
 class QueryAgent:
     """Agent that handles natural language queries using hybrid search."""
 
-    def __init__(self, model_name: str = "gpt-4o-mini"):
+    def __init__(self, model_name: str = "gpt-4o"):
         self.model = ChatOpenAI(
             model=model_name,
             temperature=0,
@@ -37,8 +37,11 @@ class QueryAgent:
                 "- vector_search: Find documents about concepts, ideas, topics (semantic search)\n"
                 "- keyword_search: Find specific words, names, exact phrases (literal search)\n"
                 "- get_document_count: Check how many documents are indexed\n\n"
-                "For most questions, use BOTH vector_search AND keyword_search to get comprehensive results. "
-                "Synthesize the results from both searches into a clear, accurate answer.\n\n"
+                "Follow this EXACT workflow:\n"
+                "1. Call BOTH vector_search AND keyword_search with your initial query\n"
+                "2. Review the results - if you have enough information, IMMEDIATELY call the final response with your answer and sources_cited\n"
+                "3. Only search again if the first search returned no relevant results\n\n"
+                "DO NOT make more than 2 rounds of searches. After reviewing results, you MUST answer.\n\n"
                 "Cite the source file(s) for each piece of information in your answer."
             ),
             tools=[vector_search, keyword_search, get_document_count],
@@ -57,7 +60,10 @@ class QueryAgent:
             }
         ]
 
-        result = self.agent.invoke({"messages": chat})
+        result = self.agent.invoke(
+            {"messages": chat},
+            config={"recursion_limit": 12}
+        )
 
         # Extract structured output - the result is a dict with the agent's response
         query_result = None

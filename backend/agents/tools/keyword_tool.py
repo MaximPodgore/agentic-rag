@@ -54,6 +54,7 @@ def keyword_search(query: str, top_k: int = 5) -> str:
         idx = result["index"]
         metadata = _document_metadatas[idx] if idx < len(_document_metadatas) else {}
         source = metadata.get("source", "unknown") if metadata else "unknown"
-        output.append(f"[Result {i+1}] Source: {source} (score: {result['score']:.3f})\n{result['content']}\n")
+        filename = metadata.get("filename", source) if metadata else source
+        output.append(f"[Result {i+1}] Source: {filename} (score: {result['score']:.3f})\n{result['content']}\n")
 
     return "\n".join(output)

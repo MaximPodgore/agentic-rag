@@ -42,7 +42,7 @@ class QueryAgent:
                 "2. Review the results - if you have enough information, IMMEDIATELY call the final response with your answer and sources_cited\n"
                 "3. Only search again if the first search returned no relevant results\n\n"
                 "DO NOT make more than 2 rounds of searches. After reviewing results, you MUST answer.\n\n"
-                "Cite the source file(s) for each piece of information in your answer."
+                "Do not cite sources in your answer text - just provide the answer. The sources will be shown separately."
             ),
             tools=[vector_search, keyword_search, get_document_count],
         )

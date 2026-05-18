@@ -3,20 +3,52 @@ import re
 from pathlib import Path
 from typing import List, Dict, Any
 
+try:
+    from pypdf import PdfReader
+    PDF_SUPPORT = True
+except ImportError:
+    try:
+        from PyPDF2 import PdfReader
+        PDF_SUPPORT = True
+    except ImportError:
+        PDF_SUPPORT = False
+
+
+def extract_pdf_text(file_path: Path) -> str:
+    """Extract text from a PDF file."""
+    if not PDF_SUPPORT:
+        raise ImportError("PDF support requires 'pypdf' or 'PyPDF2'. Install with: pip install pypdf")
+
+    reader = PdfReader(str(file_path))
+    text_parts = []
+    for page in reader.pages:
+        text = page.extract_text()
+        if text:
+            text_parts.append(text)
+    return "\n\n".join(text_parts)
+
 
 def load_documents(folder_path: str) -> List[Dict[str, Any]]:
     """
     Load all supported documents from a folder.
-    Supports: .md, .txt
+    Supports: .md, .txt, .pdf
     Returns list of dicts with content, metadata, and id.
     """
     documents = []
     folder = Path(folder_path)
 
-    for ext in ["*.md", "*.txt"]:
+    extensions = ["*.md", "*.txt"]
+    if PDF_SUPPORT:
+        extensions.append("*.pdf")
+
+    for ext in extensions:
         for file_path in folder.rglob(ext):
             try:
-                content = file_path.read_text(encoding="utf-8")
+                if file_path.suffix.lower() == ".pdf":
+                    content = extract_pdf_text(file_path)
+                else:
+                    content = file_path.read_text(encoding="utf-8")
+
                 chunks = chunk_text(content)
 
                 for i, chunk in enumerate(chunks):

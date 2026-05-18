@@ -42,11 +42,11 @@ export function FileDrop() {
 
   const uploadFiles = async (files: File[]) => {
     const validFiles = files.filter(
-      (f) => f.name.endsWith(".md") || f.name.endsWith(".txt")
+      (f) => f.name.endsWith(".md") || f.name.endsWith(".txt") || f.name.endsWith(".pdf")
     );
 
     if (validFiles.length === 0) {
-      alert("Please upload .md or .txt files only");
+      alert("Please upload .md, .txt, or .pdf files only");
       return;
     }
 
@@ -146,13 +146,13 @@ export function FileDrop() {
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Drag and drop files here
         </p>
-        <p className="text-xs text-zinc-500 mt-1">.md and .txt files only</p>
+        <p className="text-xs text-zinc-500 mt-1">.md, .txt, and .pdf files</p>
 
         <label className="mt-3 inline-block">
           <input
             type="file"
             multiple
-            accept=".md,.txt"
+            accept=".md,.txt,.pdf"
             onChange={handleFileSelect}
             className="hidden"
           />

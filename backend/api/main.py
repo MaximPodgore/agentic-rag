@@ -58,13 +58,13 @@ def health_check():
 @app.post("/upload")
 async def upload_documents(files: List[UploadFile] = File(...)):
     """
-    Upload and index documents. Accepts .md and .txt files.
+    Upload and index documents. Accepts .md, .txt, and .pdf files.
     """
     with tempfile.TemporaryDirectory() as temp_dir:
         saved_files = []
 
         for file in files:
-            if not file.filename.endswith(('.md', '.txt', '.MD', '.TXT')):
+            if not file.filename.endswith(('.md', '.txt', '.pdf', '.MD', '.TXT', '.PDF')):
                 continue
 
             file_path = Path(temp_dir) / file.filename
@@ -78,7 +78,14 @@ async def upload_documents(files: List[UploadFile] = File(...)):
         documents = load_documents(temp_dir)
 
         if not documents:
-            raise HTTPException(status_code=400, detail="No valid documents found")
+            import traceback
+            from utils.document_loader import PDF_SUPPORT
+            print(f"PDF_SUPPORT: {PDF_SUPPORT}")
+            print(f"Saved files: {saved_files}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"No valid documents found. PDF_SUPPORT={PDF_SUPPORT}, files_saved={len(saved_files)}"
+            )
 
         # Add to ChromaDB
         chroma_store.add_documents(
@@ -108,13 +115,10 @@ def chat(request: ChatRequest):
     try:
         result = query_agent.query(request.message)
 
-        # Extract sources from intermediate steps
+        # Format sources from the agent's sources_cited
         sources = []
-        for step in result.get("intermediate_steps", []):
-            if len(step) >= 2:
-                tool_output = step[1]
-                if "Source:" in str(tool_output):
-                    sources.append({"content": tool_output})
+        for source in result.get("sources", []):
+            sources.append({"content": f"Source: {source}"})
 
         return ChatResponse(
             answer=result["answer"],

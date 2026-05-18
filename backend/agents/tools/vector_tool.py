@@ -41,8 +41,9 @@ def vector_search(query: str, n_results: int = 5) -> str:
         results["distances"][0]
     )):
         source = metadata.get("source", "unknown") if metadata else "unknown"
+        filename = metadata.get("filename", source) if metadata else source
         score = 1 - distance if distance else 0
-        output.append(f"[Result {i+1}] Source: {source} (similarity: {score:.3f})\n{doc}\n")
+        output.append(f"[Result {i+1}] Source: {filename} (similarity: {score:.3f})\n{doc}\n")
 
     return "\n".join(output)
 

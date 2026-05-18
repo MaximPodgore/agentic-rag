@@ -1,0 +1,8 @@
+.claude
+.next
+.vscode/
+
+/backend/chroma_data
+/backend/.env
+__pycache__
+node_modules

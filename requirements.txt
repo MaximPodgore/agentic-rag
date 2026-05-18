@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+langchain>=0.3.0
+langchain-openai
+langchain-community
+langchain-chroma
+langgraph>=0.2.0
+chromadb
+python-multipart
+pydantic
+python-dotenv
+rank-bm25
